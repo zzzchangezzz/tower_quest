@@ -44,14 +44,14 @@ class MenuWindow:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     if continue_but.onclick(pos):
-                        # продолжить игру
-                        pass
+                        self.run = False
+                        return 'continue'
                     if new_g_but.onclick(pos):
-                        # начать игру с первого уровня
-                        pass
+                        self.run = False
+                        return 'new game'
                     if ach_but.onclick(pos):
-                        # показать достижения
-                        pass
+                        self.run = False
+                        return 'achievements'
                     if pre_but.onclick(pos):
                         Prologue().tellstory()
                     if exit_but.onclick(pos):
@@ -88,8 +88,3 @@ class Prologue:
                         fon = pygame.transform.scale(load_image('prolog', self.naming), (self.width, self.height))
                         screen.blit(fon, (0, 0))
             pygame.display.flip()
-
-
-men = MenuWindow()
-men.mainmenu()
-pygame.quit()

@@ -1,6 +1,5 @@
 import pygame
 from helping_def import load_image
-pygame.init()
 
 
 class Player(pygame.sprite.Sprite):
@@ -51,3 +50,6 @@ class Player(pygame.sprite.Sprite):
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
             self.image = self.frames[self.cur_frame]
             self.iter_num = 0
+
+    def get_pos(self):
+        return self.rect.x, self.rect.y
