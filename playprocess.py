@@ -2,7 +2,7 @@ import pygame
 import os
 import sys
 from buttons import Button
-from mainbody import MenuWindow, Prologue
+from mainbody import MenuWindow, Prologue, Achievement
 from player import Player
 from objects import Person, Tile, TurnTriangle, Chest
 from helping_def import terminate, load_image
@@ -19,9 +19,15 @@ for i in range(2, 5):
 men = MenuWindow()
 status = men.mainmenu()
 while status == 'achievements':
-    pass  # достижения
+    wind = Achievement()
+    status = wind.show_achievements()
+    if status == 'menu':
+        status = men.mainmenu()
 if status == 'new game':
     pass  # перезаписание файла и статус 'continue'
 if status == 'continue':
     pass  # игра
+if status == 'termination':
+    terminate()
+
 pygame.quit()
