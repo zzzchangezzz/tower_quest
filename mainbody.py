@@ -98,27 +98,27 @@ class Achievement:
         self.txt_clr = pygame.Color(255, 255, 255)
         self.watch = True
         self.b_w, self.b_h = 128, 50
-        self.back_button = Button('Назад', 10, 10, self.b_w, self.b_h)
-        self.offset, self.ac_hei, self.leng = 32, 80, 500
-        self.aff_one = 110
+        self.back_button = Button('Назад', 24, 24, self.b_w, self.b_h)
+        self.offset, self.ac_hei, self.leng = 60, 80, 500
+        self.aff_one = 100
         ach_cod = []
         self.score = 0
         self.real_got = []
         with open("dostig.txt", encoding="utf-8") as ac:
             ach_cod = str(ac.read())
             ach_cod = ach_cod.split(',')
-        for i in range(len(ach_cod)):
+        for i in range(1, len(ach_cod)):
             if ach_cod[i] == 'T':
-                if i == 0:
-                    self.real_got.append('Начало положено. (Начать игру, +10)')
-                    self.score += 10
                 if i == 1:
+                    self.real_got.append('Начало положено. (Запустить игру, +10)')
+                    self.score += 10
+                if i == 2:
                     self.real_got.append('Путь к развитию. (Получена неплохая концовка, +150)')
                     self.score += 150
-                if i == 2:
+                if i == 3:
                     self.real_got.append('Восход. (Получена лучшая концовка, +300)')
                     self.score += 300
-                if i == 3:
+                if i == 4:
                     self.real_got.append('Пучина греха. (Получена худшая концовка, +100)')
                     self.score += 100
 
@@ -129,7 +129,7 @@ class Achievement:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.watch = False
-                    terminate()
+                    return 'termination'
                 if event.type == pygame.MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
                     self.back_button.set_hov(self.back_button.onclick(pos))
@@ -140,7 +140,7 @@ class Achievement:
                         return 'menu'
                 self.back_button.draw(screen)
                 bit = 0
-                fon = pygame.font.Font(None, 18)
+                fon = pygame.font.Font(None, 24)
                 for j in range(len(self.real_got)):
                     n = j + 1
                     bit = n + 1
@@ -151,6 +151,12 @@ class Achievement:
                     phr = fon.render(self.real_got[j], 1, self.txt_clr)
                     screen.blit(phr, (x + (self.leng / 2 - phr.get_width() / 2),
                                       y + (self.ac_hei / 2 - phr.get_height() / 2)))
-                phr = fon.render(str(self.score), 1, self.txt_clr)
+                score_txt = 'Итого очков: ' + str(self.score)
+                phr = fon.render(score_txt, 1, self.txt_clr)
                 screen.blit(phr, (self.offset, self.aff_one * bit))
                 pygame.display.flip()
+
+
+class Finale():
+    def __init__(self):
+        pass
