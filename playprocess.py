@@ -194,24 +194,25 @@ if status == 'continue':
             player.moving_player(movement)
             action_obj = pygame.sprite.spritecollideany(player, interactive)
             player.back_step(movement)
-            if action_obj.obj_type() == 'triangle':
-                action_obj.turn()
+            if action_obj is not None:
+                if action_obj.obj_type() == 'triangle':
+                    action_obj.turn()
 
-            if action_obj.obj_type() == 'person':
-                if current_level == 0:
-                    cult_talk = action_obj.talk(screen)
-                if current_level == 1:
-                    sad_talk = action_obj.talk(screen)
-                if current_level == 2:
-                    lazy_talk = action_obj.talk(screen)
+                if action_obj.obj_type() == 'person':
+                    if current_level == 0:
+                        cult_talk = action_obj.talk(screen)
+                    if current_level == 1:
+                        sad_talk = action_obj.talk(screen)
+                    if current_level == 2:
+                        lazy_talk = action_obj.talk(screen)
 
-            if action_obj.obj_type() == 'chest':
-                taken, card = action_obj.take_mark(screen)
-                if taken:
-                    if card == 'light':
-                        cards[current_level] = 'W'
-                    elif card == 'dark':
-                        cards[current_level] = 'B'
+                if action_obj.obj_type() == 'chest':
+                    taken, card = action_obj.take_mark(screen)
+                    if taken:
+                        if card == 'light':
+                            cards[current_level] = 'W'
+                        elif card == 'dark':
+                            cards[current_level] = 'B'
             open_exit = True
             tris = 0
             for obj in interactive:
