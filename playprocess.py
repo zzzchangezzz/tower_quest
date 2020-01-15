@@ -165,6 +165,7 @@ if status == 'continue':
     while status == 'continue':
         screen.fill(foncolr)
         e_press = False
+        movement = None
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 status = 'termination'

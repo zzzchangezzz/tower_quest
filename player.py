@@ -30,6 +30,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= self.step
         if direction == 'right':
             self.rect.x += self.step
+        return
 
     def back_step(self, front_dir):
         if front_dir == 'up':
@@ -51,7 +52,7 @@ class Player(pygame.sprite.Sprite):
                                 sheet.get_height() // rows)
         for j in range(rows):
             for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
+                frame_location = (self.rect.x * i, self.rect.y * j)
                 self.frames = []
                 self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
 
