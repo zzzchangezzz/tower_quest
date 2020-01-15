@@ -8,14 +8,14 @@ class Player(pygame.sprite.Sprite):
         self.image = load_image('skin', 'player.png', -1)
         tile_size = 64
         self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y + 5)
-        self.step = 16
+        self.steps = 16
         self.cur_frame = 0
         self.iter_num = 0
         self.frames = []
         self.last_way = None
         self.cur_way = None
 
-    def step(self, direction):
+    def steps(self, direction):
         self.cur_way = direction
         if self.cur_way != self.last_way:
             picture = direction + '.png'
@@ -23,23 +23,23 @@ class Player(pygame.sprite.Sprite):
         self.updating()
         self.last_way = self.cur_way
         if direction == 'up':
-            self.rect.y -= self.step
+            self.rect.y -= self.steps
         if direction == 'down':
-            self.rect.y += self.step
+            self.rect.y += self.steps
         if direction == 'left':
-            self.rect.x -= self.step
+            self.rect.x -= self.steps
         if direction == 'right':
-            self.rect.x += self.step
+            self.rect.x += self.steps
 
     def back_step(self, front_dir):
         if front_dir == 'up':
-            self.rect.y += self.step
+            self.rect.y += self.steps
         if front_dir == 'down':
-            self.rect.y -= self.step
+            self.rect.y -= self.steps
         if front_dir == 'left':
-            self.rect.x += self.step
+            self.rect.x += self.steps
         if front_dir == 'right':
-            self.rect.x -= self.step
+            self.rect.x -= self.steps
 
     def refresh_iteration(self, pict):
         self.iter_num = 0

@@ -171,19 +171,19 @@ if status == 'continue':
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     movement = 'left'
-                    player.step(movement)
+                    player.steps(movement)
                 elif event.key == pygame.K_d:
                     movement = 'right'
-                    player.step(movement)
+                    player.steps(movement)
                 elif event.key == pygame.K_w:
                     movement = 'up'
-                    player.step(movement)
+                    player.steps(movement)
                 elif event.key == pygame.K_s:
                     movement = 'down'
-                    player.step(movement)
+                    player.steps(movement)
                 elif event.key == pygame.K_e:
                     e_press = True
-                    player.step(movement)
+                    player.steps(movement)
         if pygame.sprite.spritecollideany(player, blocks):
             player.back_step(movement)
         if pygame.sprite.spritecollideany(player, unable_exits):
@@ -191,7 +191,7 @@ if status == 'continue':
         if pygame.sprite.spritecollideany(player, interactive):
             player.back_step(movement)
         if e_press:
-            player.step(movement)
+            player.steps(movement)
             action_obj = pygame.sprite.spritecollideany(player, interactive)
             player.back_step(movement)
             if action_obj.obj_type() == 'triangle':
