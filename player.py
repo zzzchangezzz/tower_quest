@@ -6,8 +6,9 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, player_group, all_sprites, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = load_image('skin', 'player.png', -1)
-        tile_size = 64
-        self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y + 5)
+        self.tile_size = 64
+        self.x, self.y = pos_x, pos_y
+        self.rect = self.image.get_rect().move(self.tile_size * pos_x, self.tile_size * pos_y)
         self.step = 16
         self.cur_frame = 0
         self.iter_num = 0
@@ -48,13 +49,14 @@ class Player(pygame.sprite.Sprite):
         self.cut_sheet(load_image('skin', pict, -1), 4, 1)
 
     def cut_sheet(self, sheet, columns, rows):
+        self.frames = []
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
         for j in range(rows):
             for i in range(columns):
                 frame_location = (self.rect.x * i, self.rect.y * j)
-                self.frames = []
                 self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
+        self.rect = self.image.get_rect().move(self.tile_size * self.x, self.tile_size * self.y)
 
     def updating(self):
         self.iter_num += 1

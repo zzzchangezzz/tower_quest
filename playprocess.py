@@ -101,7 +101,7 @@ def generate_level(level):
 
     return new_player
 
-
+pygame.key.set_repeat(200, 70)
 f = open("savefile.txt", encoding="utf-8")
 saving = f.read().split(',')
 f.close()
@@ -165,7 +165,6 @@ if status == 'continue':
     while status == 'continue':
         screen.fill(foncolr)
         e_press = False
-        movement = None
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 status = 'termination'
