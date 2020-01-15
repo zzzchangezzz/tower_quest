@@ -14,7 +14,7 @@ class Person(pygame.sprite.Sprite):
         for i in range(2):
             pic_name = 'em-' + name + '-' + str(i)
             self.emotions.append(load_image('skin', pic_name))
-        self.dialog = self.set_dialog()
+        self.dialog = []
         self.d_wid, self.d_hei = 640, 128
         self.d_x, self.d_y = 0, 512
         tile_size = 64
@@ -22,6 +22,7 @@ class Person(pygame.sprite.Sprite):
         self.dialog_rect = pygame.Surface([self.d_wid, self.d_hei])
 
     def talk(self, screen):
+        self.dialog = self.set_dialog()
         for i in range(len(self.dialog)):
             self.emotion = self.emotions[i % 2]
             font = pygame.font.Font(None, 18)
@@ -34,6 +35,7 @@ class Person(pygame.sprite.Sprite):
             pygame.display.flip()
             while pygame.event.wait().type != pygame.KEYDOWN:
                 pass
+        return self.talked
 
     def set_dialog(self):
         phr = []
@@ -46,7 +48,7 @@ class Person(pygame.sprite.Sprite):
                 phr.append('Впрочем, это ваше решение. Без метки вы не можете пройти на следующий этаж.')
                 phr.append('Решайте головоломки, и сможете получить светлые метки.')
                 phr.append('А можете просто собрать темные. Их легче получить.')
-                phr.append('Удачи!')
+                phr.append('Актуальна лишь последняя взятая марка. Удачи!')
                 self.talked = True
             if self.talked:
                 phr.append('Что-то не ясно?')
@@ -57,7 +59,7 @@ class Person(pygame.sprite.Sprite):
             if not self.talked:
                 phr.append('Кто-то дошёл сюда? Ты, кажется, решителен!')
                 phr.append('Мне уже лень искать все эти метки.')
-                phr.append('Тут ещё и коробки надо двигать! Кто это выдумал?')
+                phr.append('Кто эти загадки вообще выдумал?')
                 phr.append('Может останешься со мной?')
                 self.talked = True
             if self.talked:
@@ -79,11 +81,15 @@ class Person(pygame.sprite.Sprite):
                 phr.append('Оставь метку себе. Лучше просто скажи, как пройти лабиринт.')
         return phr
 
+    def obj_type(self):
+        return 'person'
+
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, sprite_group, tag, all_sprites, pos_x, pos_y):
         super().__init__(sprite_group, all_sprites)
         self.image = load_image('bigpic', tag + '.png')
+        self.tag = tag
         tile_size = 64
         self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
 
@@ -107,12 +113,14 @@ class TurnTriangle(pygame.sprite.Sprite):
     def return_angle(self):
         return self.angle
 
+    def obj_type(self):
+        return 'triangle'
+
 
 class Chest(pygame.sprite.Sprite):
-    def __init__(self, sprite_group, tag, open_status, all_sprites, pos_x, pos_y):
+    def __init__(self, sprite_group, tag, all_sprites, pos_x, pos_y):
         super().__init__(sprite_group, all_sprites)
         self.mark = tag
-        self.status = open_status
         self.image = load_image('bigpic', 'chest.png')
         tile_size = 64
         self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
@@ -150,3 +158,22 @@ class Chest(pygame.sprite.Sprite):
             screen.blit(inf, (5, 580))
             pygame.display.flip()
         return take, self.mark
+
+    def obj_type(self):
+        return 'chest'
+
+
+class Exit(pygame.sprite.Sprite):
+    def __init__(self, sprite_group, all_sprites, direct, pos_x, pos_y, active=True):
+        super().__init__(sprite_group, all_sprites)
+        self.direction = direct
+        self.status = active
+        self.image = load_image('bigpic', 'exit.png')
+        if not self.status:
+            self.image = load_image('bigpic', 'unable.png')
+        tile_size = 64
+        self.x, self.y = pos_x, pos_y
+        self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
+
+    def return_stat(self):
+        return self.status, self.direction, self.x, self.y

@@ -133,7 +133,7 @@ class Achievement:
                 if event.type == pygame.MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
                     self.back_button.set_hov(self.back_button.onclick(pos))
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     if self.back_button.onclick(pos):
                         self.watch = False
@@ -157,6 +157,24 @@ class Achievement:
                 pygame.display.flip()
 
 
-class Finale():
-    def __init__(self):
-        pass
+class Finale:
+    def __init__(self, ending):
+        self.ending = ending
+        self.pic_name = self.ending + '.png'
+        self.size = self.width, self.height = 640, 640
+        self.watch = True
+
+    def showing(self):
+        screen = pygame.display.set_mode(self.size)
+        fon = pygame.transform.scale(load_image('bigpic', self.pic_name), (self.width, self.height))
+        screen.blit(fon, (0, 0))
+        pygame.display.flip()
+        while self.watch:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.watch = False
+                    return 'termination'
+                elif event.type == pygame.KEYDOWN or \
+                        event.type == pygame.MOUSEBUTTONDOWN:
+                    self.watch = False
+                    return 'termination'
