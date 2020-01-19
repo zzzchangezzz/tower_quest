@@ -6,29 +6,30 @@ class Person(pygame.sprite.Sprite):
     def __init__(self, pers_group, all_sprites, name, talk, pos_x, pos_y):
         super().__init__(pers_group, all_sprites)
         pic_name = name + '.png'
-        self.body = load_image('skin', pic_name, -1)
+        self.image = load_image('skin', pic_name, -1)
         self.emotions = []
         self.emotion = None
         self.name = name
         self.talked = talk
+        self.d_color = pygame.Color(0, 0, 0)
         for i in range(2):
-            pic_name = 'em-' + name + '-' + str(i)
+            pic_name = 'em-' + name + '-' + str(i) + '.png'
             self.emotions.append(load_image('skin', pic_name))
         self.dialog = []
         self.d_wid, self.d_hei = 640, 128
         self.d_x, self.d_y = 0, 512
         tile_size = 64
-        self.rect = self.body.get_rect().move(tile_size * pos_x, tile_size * pos_y)
-        self.dialog_rect = pygame.Surface([self.d_wid, self.d_hei])
+        self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
 
-    def talk(self, screen):
+    def talk(self, screen, sprites_to_draw, pl_sprte):
         self.dialog = self.set_dialog()
         for i in range(len(self.dialog)):
             self.emotion = self.emotions[i % 2]
             font = pygame.font.Font(None, 18)
             phras = self.dialog[i]
-            self.dialog_rect.fill(pygame.Color(0, 0, 0))
-            screen.blit(self.dialog_rect, (self.d_x, self.d_y))
+            sprites_to_draw.draw(screen)
+            pl_sprte.draw(screen)
+            pygame.draw.rect(screen, self.d_color, (self.d_x, self.d_y, self.d_wid, self.d_hei), 0)
             screen.blit(self.emotion, (512, 512))
             told = font.render(phras, 1, (255, 255, 255))
             screen.blit(told, (10, 530))
@@ -48,9 +49,9 @@ class Person(pygame.sprite.Sprite):
                 phr.append('Впрочем, это ваше решение. Без метки вы не можете пройти на следующий этаж.')
                 phr.append('Решайте головоломки, и сможете получить светлые метки.')
                 phr.append('А можете просто собрать темные. Их легче получить.')
-                phr.append('Актуальна лишь последняя взятая марка. Удачи!')
+                phr.append('На этаже засчитывается лишь последняя взятая метка. Удачи!')
                 self.talked = True
-            if self.talked:
+            elif self.talked:
                 phr.append('Что-то не ясно?')
                 phr.append('Собери все метки решая загадки и искупи вину перед Башней!')
                 phr.append('Удачи.')
@@ -62,7 +63,7 @@ class Person(pygame.sprite.Sprite):
                 phr.append('Кто эти загадки вообще выдумал?')
                 phr.append('Может останешься со мной?')
                 self.talked = True
-            if self.talked:
+            elif self.talked:
                 phr.append('Всё-таки хочешь поболтать?')
                 phr.append('А ты не такая решительная, как я думал!')
                 phr.append('Да ну, я пошутил.')
@@ -76,7 +77,7 @@ class Person(pygame.sprite.Sprite):
                 phr.append('А вдруг я потеряюсь в нем?')
                 phr.append('Если сможешь пройти его, поделишься светлой меткой?')
                 self.talked = True
-            if self.talked:
+            elif self.talked:
                 phr.append('Что-то еще? Кстати, я тут подумала...')
                 phr.append('Оставь метку себе. Лучше просто скажи, как пройти лабиринт.')
         return phr
@@ -92,6 +93,9 @@ class Tile(pygame.sprite.Sprite):
         self.tag = tag
         tile_size = 64
         self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
+
+    def obj_type(self):
+        return 'other'
 
 
 class TurnTriangle(pygame.sprite.Sprite):
@@ -126,18 +130,20 @@ class Chest(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
         self.speak_wind = pygame.Surface([640, 64])
 
-    def take_mark(self, screen):
+    def take_mark(self, screen, sprites_to_draw, pl_sprte):
         p = ''
         take = False
         if self.mark == 'dark':
             p = 'В сундуке темная марка. Взять? (Q - да, W - нет)'
         if self.mark == 'light':
             p = 'В сундуке светлая марка. Взять? (Q - да, W - нет)'
-        font = pygame.font.Font(None, 18)
+        font = pygame.font.Font(None, 30)
+        sprites_to_draw.draw(screen)
+        pl_sprte.draw(screen)
         self.speak_wind.fill(pygame.Color(0, 0, 0))
         screen.blit(self.speak_wind, (0, 576))
         inf = font.render(p, 1, (255, 255, 255))
-        screen.blit(inf, (5, 580))
+        screen.blit(inf, (5, 590))
         answer = False
         pygame.display.flip()
         while not answer:
@@ -151,12 +157,21 @@ class Chest(pygame.sprite.Sprite):
                         take = True
                         answer = True
         if take:
+            get_it = True
             self.speak_wind.fill(pygame.Color(0, 0, 0))
+            sprites_to_draw.draw(screen)
+            pl_sprte.draw(screen)
             screen.blit(self.speak_wind, (0, 576))
-            p = 'Вы взяли метку.'
+            p = 'Вы взяли метку. [Нажмите любую кнопку]'
             inf = font.render(p, 1, (255, 255, 255))
             screen.blit(inf, (5, 580))
             pygame.display.flip()
+            while get_it:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        terminate()
+                    elif event.type == pygame.KEYDOWN:
+                        get_it = False
         return take, self.mark
 
     def obj_type(self):
@@ -177,3 +192,6 @@ class Exit(pygame.sprite.Sprite):
 
     def return_stat(self):
         return self.status, self.direction, self.x, self.y
+
+    def obj_type(self):
+        return 'exit'
