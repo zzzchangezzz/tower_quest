@@ -6,7 +6,7 @@ from helping_def import terminate, load_image
 pygame.init()
 
 
-class MenuWindow:
+class MenuWindow:  # Меню
     def __init__(self):
         self.size = self.width, self.height = 640, 640
         self.butweight, self.butheight = 300, 80
@@ -21,13 +21,17 @@ class MenuWindow:
         but_in_menu = []
         continue_but = Button('Продолжить', self.offset, self.titlspace)
         but_in_menu.append(continue_but)
-        new_g_but = Button('Новая игра', self.offset, self.titlspace + self.space)
+        new_g_but = Button('Новая игра', self.offset,
+                           self.titlspace + self.space)
         but_in_menu.append(new_g_but)
-        ach_but = Button('Достижения', self.offset, self.titlspace + self.space * 2)
+        ach_but = Button('Достижения', self.offset,
+                         self.titlspace + self.space * 2)
         but_in_menu.append(ach_but)
-        pre_but = Button('Предыстория', self.offset, self.titlspace + self.space * 3)
+        pre_but = Button('Предыстория', self.offset,
+                         self.titlspace + self.space * 3)
         but_in_menu.append(pre_but)
-        exit_but = Button('Выход', self.offset, self.titlspace + self.space * 4)
+        exit_but = Button('Выход', self.offset,
+                          self.titlspace + self.space * 4)
         but_in_menu.append(exit_but)
         header = load_image('bigpic', 'title.png')
         while self.run:
@@ -43,7 +47,7 @@ class MenuWindow:
                         i.set_hov(i.onclick(pos))
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    if continue_but.onclick(pos):
+                    if continue_but.onclick(pos):  # Проверка нажатия
                         self.run = False
                         return 'continue'
                     if new_g_but.onclick(pos):
@@ -62,7 +66,7 @@ class MenuWindow:
             pygame.display.flip()
 
 
-class Prologue:
+class Prologue:  # Предыстория
     def __init__(self):
         self.size = self.width, self.height = 640, 640
         self.curr_cadr = -1
@@ -73,20 +77,24 @@ class Prologue:
     def tellstory(self):
         screen = pygame.display.set_mode(self.size)
         while self.running:
-            fon = pygame.transform.scale(load_image('prolog', self.naming), (self.width, self.height))
+            fon = pygame.transform.scale(load_image('prolog', self.naming),
+                                         (self.width, self.height))
             screen.blit(fon, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                     terminate()
-                elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                    self.curr_cadr += 1
+                elif event.type == pygame.KEYDOWN or \
+                        event.type == pygame.MOUSEBUTTONDOWN:
+                    self.curr_cadr += 1  # смена кадра после нажатия
                     if self.curr_cadr > self.all_cadr:
                         self.running = False
                         return
                     else:
                         self.naming = 'P' + str(self.curr_cadr) + '.png'
-                        fon = pygame.transform.scale(load_image('prolog', self.naming), (self.width, self.height))
+                        fon = pygame.transform.scale(load_image('prolog',
+                                                                self.naming),
+                                                     (self.width, self.height))
                         screen.blit(fon, (0, 0))
             pygame.display.flip()
 
@@ -105,24 +113,28 @@ class Achievement:
         self.score = 0
         self.real_got = []
         with open("dostig.txt", encoding="utf-8") as ac:
-            ach_cod = str(ac.read())
+            ach_cod = str(ac.read())  # чтение из файла сохранения
             ach_cod = ach_cod.split(',')
-        for i in range(1, len(ach_cod)):
+        for i in range(1, len(ach_cod)):  # Вывод достижений
             if ach_cod[i] == 'T':
                 if i == 1:
-                    self.real_got.append('Начало положено. (Запустить игру, +10)')
+                    self.real_got.append('Начало положено. '
+                                         '(Запустить игру, +10)')
                     self.score += 10
                 if i == 2:
-                    self.real_got.append('Путь к развитию. (Получена неплохая концовка, +150)')
+                    self.real_got.append('Путь к развитию. '
+                                         '(Получена неплохая концовка, +150)')
                     self.score += 150
                 if i == 3:
-                    self.real_got.append('Восход. (Получена лучшая концовка, +300)')
+                    self.real_got.append('Восход. '
+                                         '(Получена лучшая концовка, +300)')
                     self.score += 300
                 if i == 4:
-                    self.real_got.append('Пучина греха. (Получена худшая концовка, +100)')
+                    self.real_got.append('Пучина греха. '
+                                         '(Получена худшая концовка, +100)')
                     self.score += 100
 
-    def show_achievements(self):
+    def show_achievements(self):  # Вывод на экран
         screen = pygame.display.set_mode(self.size)
         while self.watch:
             screen.fill(self.fill_clr)
@@ -150,14 +162,15 @@ class Achievement:
                                                             self.ac_hei), 3)
                     phr = fon.render(self.real_got[j], 1, self.txt_clr)
                     screen.blit(phr, (x + (self.leng / 2 - phr.get_width() / 2),
-                                      y + (self.ac_hei / 2 - phr.get_height() / 2)))
+                                      y + (self.ac_hei / 2 -
+                                           phr.get_height() / 2)))
                 score_txt = 'Итого очков: ' + str(self.score)
                 phr = fon.render(score_txt, 1, self.txt_clr)
                 screen.blit(phr, (self.offset, self.aff_one * bit))
                 pygame.display.flip()
 
 
-class Finale:
+class Finale:  # Экран концовки
     def __init__(self, ending):
         self.ending = ending
         self.pic_name = self.ending + '.png'
@@ -166,7 +179,8 @@ class Finale:
 
     def showing(self):
         screen = pygame.display.set_mode(self.size)
-        fon = pygame.transform.scale(load_image('bigpic', self.pic_name), (self.width, self.height))
+        fon = pygame.transform.scale(load_image('bigpic', self.pic_name),
+                                     (self.width, self.height))
         screen.blit(fon, (0, 0))
         pygame.display.flip()
         while self.watch:

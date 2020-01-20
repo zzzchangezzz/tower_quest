@@ -1,16 +1,15 @@
 import pygame
 import os
 import sys
-from buttons import Button
-from mainbody import MenuWindow, Prologue, Achievement, Finale
+from mainbody import MenuWindow, Achievement, Finale
 from player import Player
 from objects import Person, Tile, TurnTriangle, Chest, Exit
-from helping_def import terminate, load_image
+from helping_def import terminate
 
 pygame.init()
 
 
-def refresh_saving():
+def refresh_saving():  # запись файла сохранения на пустой
     saving[1] = '0'
     for i in range(2, 5):
         saving[i] = 'N'
@@ -67,13 +66,17 @@ def generate_level(level):
 
                 # Выходы закрытые
             elif level[ly][lx] == 'N':
-                blocks.add(Exit(unable_exits, all_sprites, 'down', lx, ly, False))
+                blocks.add(Exit(unable_exits, all_sprites, 'down',
+                                lx, ly, False))
             elif level[ly][lx] == 'V':
-                blocks.add(Exit(unable_exits, all_sprites, 'up', lx, ly, False))
+                blocks.add(Exit(unable_exits, all_sprites, 'up',
+                                lx, ly, False))
             elif level[ly][lx] == 'P':
-                blocks.add(Exit(unable_exits, all_sprites, 'front', lx, ly, False))
+                blocks.add(Exit(unable_exits, all_sprites, 'front',
+                                lx, ly, False))
             elif level[ly][lx] == 'Z':
-                blocks.add(Exit(unable_exits, all_sprites, 'back', lx, ly, False))
+                blocks.add(Exit(unable_exits, all_sprites, 'back',
+                                lx, ly, False))
 
                 # персоны
             elif level[ly][lx] == '@':
@@ -116,7 +119,6 @@ pygame.key.set_repeat(200, 70)
 f = open("savefile.txt", encoding="utf-8")
 saving = f.read().split(',')
 f.close()
-max_level = 2
 
 current_level = int(saving[1])
 current_room = 0
@@ -125,22 +127,25 @@ for i in range(2, 5):
     cards.append(saving[i])
 
 all_sprites = pygame.sprite.Group()
-
+# группы выходов
 front_exits = pygame.sprite.Group()
 back_exits = pygame.sprite.Group()
 down_exits = pygame.sprite.Group()
 up_exits = pygame.sprite.Group()
 unable_exits = pygame.sprite.Group()
-
+# другие группы
 blocks = pygame.sprite.Group()
 interactive = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 other_group = pygame.sprite.Group()
-
+# переменные
 cult_talk = False
 lazy_talk = False
 sad_talk = False
 player = None
+max_level = 2
+side_room = 0
+max_room = 3
 win_size = win_wid, win_hei = 640, 640
 foncolr = pygame.Color(0, 0, 0)
 
@@ -153,7 +158,7 @@ while status == 'achievements':
         men = MenuWindow()
         status = men.mainmenu()
 
-if status == 'new game':
+if status == 'new game':  # сохранение обнуляется и нидет основная игра
     refresh_saving()
     cards = []
     for i in range(2, 5):
@@ -161,10 +166,8 @@ if status == 'new game':
     current_level = 0
     status = 'continue'
 
-if status == 'continue':
+if status == 'continue':  # основная игра
     screen = pygame.display.set_mode(win_size)
-    side_room = 0
-    max_room = 3
     movement = None
     room_name = str(current_room) + '-' + str(side_room)
     player = generate_level(load_level(current_level, room_name))
@@ -176,28 +179,33 @@ if status == 'continue':
             if event.type == pygame.QUIT:
                 status = 'termination'
 
-            if event.type == event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            if event.type == event.type == pygame.KEYDOWN and \
+                    event.key == pygame.K_e:
                 e_press = True
 
         player.move(pygame.key.get_pressed())
         player.updating()
 
-        if e_press:
+        if e_press:  # Сигнал к взаимодействию
             action_obj = pygame.sprite.spritecollideany(player, interactive)
-            if action_obj is not None:
-                if action_obj.obj_type() == 'triangle':
+            if action_obj is not None:  # если есть с чем контактировать
+                if action_obj.obj_type() == 'triangle':  # вращать
                     action_obj.turn()
 
-                if action_obj.obj_type() == 'person':
+                if action_obj.obj_type() == 'person':  # разговаривать
                     if current_level == 0:
-                        cult_talk = action_obj.talk(screen, all_sprites, player_group)
+                        cult_talk = action_obj.talk(screen, all_sprites,
+                                                    player_group)
                     if current_level == 1:
-                        sad_talk = action_obj.talk(screen, all_sprites, player_group)
+                        sad_talk = action_obj.talk(screen, all_sprites,
+                                                   player_group)
                     if current_level == 2:
-                        lazy_talk = action_obj.talk(screen, all_sprites, player_group)
+                        lazy_talk = action_obj.talk(screen, all_sprites,
+                                                    player_group)
 
-                if action_obj.obj_type() == 'chest':
-                    taken, card = action_obj.take_mark(screen, all_sprites, player_group)
+                if action_obj.obj_type() == 'chest':  # открыть сундук
+                    taken, card = action_obj.take_mark(screen, all_sprites,
+                                                       player_group)
                     if taken:
                         if card == 'light':
                             cards[current_level] = 'W'
@@ -211,27 +219,31 @@ if status == 'continue':
                     angl = obj.return_angle()
                     if angl != 180:
                         open_exit = False
-            if tris != 0 and open_exit:
-                for ex in unable_exits:
+            if tris != 0 and open_exit:  # ТОЛЬКО ДЛЯ УРОВНЯ С ВРАЩАТЕЛЕМ
+                for ex in unable_exits:  # И ЗАКРЫТЫМИ ВЫХОДАМИ
                     s, direct, x, y = ex.return_stat()
                     ex.kill()
                     if direct == 'front':
-                        nex_ex = Exit(front_exits, all_sprites, direct, x, y, True)
+                        nex_ex = Exit(front_exits, all_sprites, direct, x, y,
+                                      True)
                     if direct == 'back':
-                        nex_ex = Exit(back_exits, all_sprites, direct, x, y, True)
+                        nex_ex = Exit(back_exits, all_sprites, direct, x, y,
+                                      True)
                     if direct == 'down':
-                        nex_ex = Exit(down_exits, all_sprites, direct, x, y, True)
+                        nex_ex = Exit(down_exits, all_sprites, direct, x, y,
+                                      True)
                     if direct == 'up':
-                        nex_ex = Exit(up_exits, all_sprites, direct, x, y, True)
-        if pygame.sprite.spritecollideany(player, front_exits):
+                        nex_ex = Exit(up_exits, all_sprites, direct, x, y,
+                                      True)
+        if pygame.sprite.spritecollideany(player, front_exits):  # выход прямо
             allow = True
-            if current_room + 1 > max_room:
+            if current_room + 1 > max_room:  # если финальный выход на уровне
                 allow = False
-                if cards[current_level] != 'N':
+                if cards[current_level] != 'N':  # если собрал метку
                     current_level += 1
                     current_room = 0
                     allow = True
-                    if current_level > max_level:
+                    if current_level > max_level:  # если всё прошел
                         status = 'ending'
                     else:
                         f = open("savefile.txt", "w", encoding="utf-8")
@@ -244,14 +256,14 @@ if status == 'continue':
                 current_room += 1
                 allow = True
 
-            if status == 'continue' and allow:
+            if status == 'continue' and allow:  # если новая комната
                 for i in all_sprites:
                     i.kill()
                 room_name = str(current_room) + '-' + str(side_room)
                 player = generate_level(load_level(current_level, room_name))
                 player.walls = blocks
 
-        if pygame.sprite.spritecollideany(player, back_exits):
+        if pygame.sprite.spritecollideany(player, back_exits):  # возвращение
             current_room -= 1
             for i in all_sprites:
                 i.kill()
@@ -259,7 +271,7 @@ if status == 'continue':
             player = generate_level(load_level(current_level, room_name))
             player.walls = blocks
 
-        if pygame.sprite.spritecollideany(player, down_exits):
+        if pygame.sprite.spritecollideany(player, down_exits):  # выход вниз
             side_room += 1
             for i in all_sprites:
                 i.kill()
@@ -267,7 +279,7 @@ if status == 'continue':
             player = generate_level(load_level(current_level, room_name))
             player.walls = blocks
 
-        if pygame.sprite.spritecollideany(player, up_exits):
+        if pygame.sprite.spritecollideany(player, up_exits):  # выход вверх
             side_room -= 1
             for i in all_sprites:
                 i.kill()
@@ -280,7 +292,7 @@ if status == 'continue':
         # player_group.draw(screen)
         pygame.display.flip()
 
-if status == 'ending':
+if status == 'ending':  # получение концовки
     dark = 0
     light = 0
     for i in cards:
@@ -291,17 +303,17 @@ if status == 'ending':
     with open("dostig.txt", encoding="utf-8") as ac:
         ach_update = str(ac.read()).split(',')
     ends = None
-    if dark > light:
+    if dark > light:  # худшая концовка
         ach_update[4] = 'T'
         ends = Finale('bad')
         status = ends.showing()
 
-    if dark < light < len(cards):
+    if dark < light < len(cards):  # неплохая
         ach_update[2] = 'T'
         ends = Finale('good')
         status = ends.showing()
 
-    if light == len(cards):
+    if light == len(cards):  # лучшая
         ach_update[3] = 'T'
         ends = Finale('best')
         status = ends.showing()
@@ -310,7 +322,7 @@ if status == 'ending':
         f.write(','.join(ach_update))
     refresh_saving()
 
-if status == 'termination':
+if status == 'termination':  # закрытие программы
     terminate()
 
 terminate()
